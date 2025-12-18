@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BudayaKita - Alat Musik Tradisional Indonesia</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #da5d99 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .music-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .music-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .music-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-image-placeholder {
+            font-size: 4em;
+        }
+
+        .card-content {
+            padding: 20px;
+        }
+
+        .card-content h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.4em;
+        }
+
+        .card-info {
+            color: #666;
+            font-size: 0.95em;
+            margin-bottom: 5px;
+        }
+
+        .card-info strong {
+            color: #667eea;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: white;
+            max-width: 600px;
+            margin: 50px auto;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+        }
+
+        .modal-header h2 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .modal-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .modal-info {
+            margin-bottom: 15px;
+            font-size: 1.05em;
+        }
+
+        .modal-info strong {
+            color: #667eea;
+            display: inline-block;
+            width: 120px;
+        }
+
+        .modal-description {
+            background: #f5f7fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .audio-player {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .play-btn {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 12px 40px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .play-btn:hover {
+            background: #f0f0f0;
+            transform: scale(1.05);
+        }
+
+        .play-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: rgba(255,255,255,0.3);
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            font-size: 1.5em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .close-btn:hover {
+            background: rgba(255,255,255,0.5);
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            margin-top: 40px;
+        }
+
+        footer p {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2em;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 200px;
+            }
+
+            .music-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                margin: 20px;
+                max-width: calc(100% - 40px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎵 BudayaKita</h1>
+            <p>Website Interaktif Pengenalan Alat Musik Tradisional Indonesia</p>
+        </header>
+
+        <div class="controls">
+            <button class="btn" onclick="shuffleMusic()">🔀 Acak</button>
+            <button class="btn" onclick="resetMusic()">🔄 Reset</button>
+        </div>
+
+        <div class="music-grid" id="musicGrid"></div>
+
+        <footer>
+            <p>© 2025 BudayaKita - Kelompok 8 Sistem Multimedia</p>
+            <p>Delila Alexsandria • Rika Siti Haliza • Muhammad Wandra Aigil</p>
+        </footer>
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">×</button>
+            <div class="modal-header">
+                <h2 id="modalTitle"></h2>
+            </div>
+            <img id="modalImage" class="modal-image" src="" alt="" style="display:none;">
+            <div class="modal-body">
+                <div class="modal-info">
+                    <strong>Asal Daerah:</strong> <span id="modalRegion"></span>
+                </div>
+                <div class="modal-info">
+                    <strong>Jenis Alat Musik:</strong> <span id="modalType"></span>
+                </div>
+                <div class="modal-description" id="modalDescription"></div>
+                <div class="audio-player">
+                    <p>🔊 Dengarkan Suara Asli Alat Musik</p>
+                    <button class="play-btn" id="playBtn" onclick="playSound()">▶ Putar Suara</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const musicData = [
+            {
+                name: "Gamelan",
+                region: "Jawa dan Bali",
+                type: "Perkusi",
+                emoji: "🎵",
+                image: "gamelan.jpg",
+                audio: "gamelan.mp3",
+                description: "Gamelan adalah ensembel musik tradisional yang berasal dari Jawa dan Bali. Gamelan terdiri dari berbagai instrumen seperti gong, kenong, saron, dan bonang. Musik gamelan memiliki karakteristik suara yang khas dengan nada-nada pentatonis dan sering digunakan untuk mengiringi pertunjukan wayang, tari tradisional, dan upacara adat."
+            },
+            {
+                name: "Angklung",
+                region: "Jawa Barat",
+                type: "Idiofon",
+                emoji: "🎋",
+                image: "angklung.jpg",
+                audio: "suaraangklung.mp3",
+                description: "Angklung adalah alat musik multitonal tradisional yang berasal dari Jawa Barat. Terbuat dari bambu dan dimainkan dengan cara digoyangkan. Setiap angklung menghasilkan satu nada tertentu, sehingga diperlukan beberapa angklung untuk memainkan melodi lengkap. Angklung telah diakui UNESCO sebagai Warisan Budaya Takbenda pada tahun 2010."
+            },
+            {
+                name: "Suling",
+                region: "Sumatra dan Jawa",
+                type: "Aerofon",
+                emoji: "🎶",
+                image: "suling.jpg",
+                audio: "suarasuling.mp3",
+                description: "Suling adalah alat musik tiup tradisional yang terbuat dari bambu atau kayu. Suling dimainkan dengan cara ditiup sambil menutup lubang-lubang nada untuk menghasilkan melodi. Alat musik ini banyak ditemukan di berbagai daerah di Indonesia seperti Sumatra dan Jawa dengan variasi bentuk dan teknik permainan yang berbeda-beda."
+            },
+            {
+                name: "Kendang",
+                region: "Jawa",
+                type: "Membranofon",
+                emoji: "🥁",
+                image: "kendang.jpg",
+                audio: "suarakendang.mp3",
+                description: "Kendang adalah alat musik perkusi berbentuk gendang yang berasal dari Jawa. Kendang dimainkan dengan cara dipukul menggunakan tangan atau alat pemukul. Kendang memiliki peran penting dalam mengatur tempo dan ritme dalam musik gamelan, tari tradisional, dan pertunjukan wayang. Terdapat berbagai jenis kendang dengan ukuran dan fungsi yang berbeda."
+            },
+            {
+                name: "Sasando",
+                region: "Nusa Tenggara Timur",
+                type: "Kordofon",
+                emoji: "🎸",
+                image: "sasando.jpg",
+                audio: "sasando.mp3",
+                description: "Sasando adalah alat musik petik tradisional yang berasal dari pulau Rote, Nusa Tenggara Timur. Sasando memiliki bentuk yang unik dengan dawai yang direntangkan pada tabung bambu dan dibungkus dengan daun lontar kering. Sasando dimainkan dengan cara dipetik dan menghasilkan suara yang merdu dan khas. Alat musik ini sering digunakan untuk mengiringi lagu-lagu daerah NTT."
+            }
+        ];
+
+        let currentMusic = [...musicData];
+        let selectedMusic = null;
+        let currentAudio = null;
+
+        function renderMusic() {
+            const grid = document.getElementById('musicGrid');
+            grid.innerHTML = '';
+            
+            currentMusic.forEach((music, index) => {
+                const card = document.createElement('div');
+                card.className = 'music-card';
+                card.onclick = () => openModal(index);
+                
+                const imageContent = music.image 
+                    ? `<img src="${music.image}" alt="${music.name}" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\'card-image-placeholder\'>${music.emoji}</div>';">`
+                    : `<div class="card-image-placeholder">${music.emoji}</div>`;
+                
+                card.innerHTML = `
+                    <div class="card-image">${imageContent}</div>
+                    <div class="card-content">
+                        <h3>${music.name}</h3>
+                        <p class="card-info"><strong>Asal:</strong> ${music.region}</p>
+                        <p class="card-info"><strong>Jenis:</strong> ${music.type}</p>
+                    </div>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+
+        function openModal(index) {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
+            }
+            
+            selectedMusic = currentMusic[index];
+            document.getElementById('modalTitle').textContent = selectedMusic.name;
+            document.getElementById('modalRegion').textContent = selectedMusic.region;
+            document.getElementById('modalType').textContent = selectedMusic.type;
+            document.getElementById('modalDescription').textContent = selectedMusic.description;
+            
+            const modalImage = document.getElementById('modalImage');
+            if (selectedMusic.image) {
+                modalImage.src = selectedMusic.image;
+                modalImage.alt = selectedMusic.name;
+                modalImage.style.display = 'block';
+                modalImage.onerror = function() {
+                    this.style.display = 'none';
+                };
+            } else {
+                modalImage.style.display = 'none';
+            }
+            
+            const playBtn = document.getElementById('playBtn');
+            playBtn.textContent = '▶ Putar Suara';
+            playBtn.disabled = false;
+            
+            document.getElementById('modal').style.display = 'block';
+        }
+
+        function closeModal() {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
+            }
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        function playSound() {
+            if (!selectedMusic) return;
+            
+            const playBtn = document.getElementById('playBtn');
+            
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
+                playBtn.textContent = '▶ Putar Suara';
+                return;
+            }
+            
+            if (selectedMusic.audio) {
+                currentAudio = new Audio(selectedMusic.audio);
+                
+                currentAudio.addEventListener('loadeddata', function() {
+                    currentAudio.play();
+                    playBtn.textContent = '⏸ Jeda';
+                });
+                
+                currentAudio.addEventListener('ended', function() {
+                    currentAudio = null;
+                    playBtn.textContent = '▶ Putar Suara';
+                });
+                
+                currentAudio.addEventListener('error', function() {
+                    alert('Gagal memuat file audio. Pastikan file audio tersedia di: ' + selectedMusic.audio);
+                    currentAudio = null;
+                    playBtn.textContent = '▶ Putar Suara';
+                });
+            } else {
+                alert('File audio belum tersedia untuk alat musik ini.');
+            }
+        }
+
+        function shuffleMusic() {
+            currentMusic = [...currentMusic].sort(() => Math.random() - 0.5);
+            renderMusic();
+        }
+
+        function resetMusic() {
+            currentMusic = [...musicData];
+            renderMusic();
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        renderMusic();
+    </script>
+</body>
+</html>
